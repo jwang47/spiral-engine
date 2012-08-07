@@ -1,0 +1,7 @@
+*.dll
+bin
+log
+*.properties
+.metadata
+org.eclipse.jdt.core.prefs
+.svn
