@@ -25,7 +25,9 @@ import net.faintedge.spiral.physics.Physics;
 import net.faintedge.spiral.physics.PhysicsFactory;
 import net.faintedge.spiral.physics.system.PhysicsSystem;
 
+import org.jbox2d.collision.shapes.ShapeType;
 import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.BodyType;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -104,9 +106,11 @@ public class SimplePhysicsNetworkedGame extends BasicGame {
 
     Entity e = world.createEntity();
     e.addComponent(new Transform(300, 300, 0));
-    e.addComponent(new Render(new Rectangle(Color.red, 15, 15)));
-    e.addComponent(PhysicsFactory.createPhysicsRectangle(15, 15, PTM));
-    //e.addComponent(new SyncObject<Physics>());
+    e.addComponent(new Render(new Rectangle(Color.red, 25, 25)));
+    Physics physics = PhysicsFactory.createPhysicsRectangle(25, 25, PTM);
+    physics.getBodyDef().linearDamping = 1.0f;
+    e.addComponent(physics);
+    e.addComponent(new SyncObject<Physics>());
     e.addComponent(new ControllerContainer<Physics>(new DebugPhysicsMover()));
     e.refresh();
   }
@@ -120,6 +124,10 @@ public class SimplePhysicsNetworkedGame extends BasicGame {
     kryo.register(TransformSyncUpdate.class);;
     kryo.register(PhysicsSyncCreate.class);
     kryo.register(PhysicsSyncUpdate.class);
+    kryo.register(BodyType.class);
+    kryo.register(ShapeType.class);
+    kryo.register(float[].class);
+    kryo.register(float[][].class);
   }
 
   @Override

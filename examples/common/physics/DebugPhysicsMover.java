@@ -19,6 +19,7 @@ public class DebugPhysicsMover implements Controller<Physics> {
   }
   
   private Vec2 force = new Vec2();
+  private Vec2 zero = new Vec2();
   @Override
   public void apply(Physics physics, int delta) {
     Body body = physics.getBody();
@@ -41,6 +42,7 @@ public class DebugPhysicsMover implements Controller<Physics> {
     
     force.normalize();
     force.mulLocal(distance);
+    body.applyForce(force, zero);
   }
 
 }

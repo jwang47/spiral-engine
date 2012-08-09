@@ -15,8 +15,10 @@ public class SyncObject<T> extends Component {
   private long requestId = -1;
   private int ownerId = -1;
   
-  private int updateDelay = 20;
+  private int updateDelay = 10;
   private int timeSinceLastUpdate = updateDelay;
+  
+  private long lastUpdateRecvTime = 0;
 
   public T getObject() {
     return object;
@@ -63,6 +65,7 @@ public class SyncObject<T> extends Component {
     if (timeSinceLastUpdate > updateDelay) {
       timeSinceLastUpdate = 0;
       SyncUpdate<T> update = handler.makeUpdateMessage(object);
+      update.setTimestamp(System.currentTimeMillis());
       update.setSyncManagerId(syncManagerId);
       update.setSyncObjectId(syncObjectId);
       if (ownerId == -1) {
@@ -81,10 +84,18 @@ public class SyncObject<T> extends Component {
     if (timeSinceLastUpdate > updateDelay) {
       timeSinceLastUpdate = 0;
       SyncUpdate<T> update = handler.makeUpdateMessage(object);
+      update.setTimestamp(System.currentTimeMillis());
       update.setSyncManagerId(syncManagerId);
       update.setSyncObjectId(syncObjectId);
       client.sendUDP(update);
-      Log.info("client sending sync update");
+    }
+  }
+  
+  public void applyUpdate(SyncHandler<T> handler, SyncUpdate<T> message) {
+    long messageTime = message.getTimestamp();
+    if (messageTime > lastUpdateRecvTime) {
+      handler.applyUpdate(object, message);
+      lastUpdateRecvTime = messageTime;
     }
   }
   

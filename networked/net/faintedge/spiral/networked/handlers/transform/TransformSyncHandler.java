@@ -3,6 +3,7 @@ package net.faintedge.spiral.networked.handlers.transform;
 import net.faintedge.spiral.core.component.Transform;
 import net.faintedge.spiral.networked.SyncHandler;
 import net.faintedge.spiral.networked.msg.SyncCreate;
+import net.faintedge.spiral.networked.msg.SyncDestroy;
 import net.faintedge.spiral.networked.msg.SyncUpdate;
 import util.Log;
 
@@ -21,6 +22,11 @@ public class TransformSyncHandler extends SyncHandler<Transform> {
     update.setY(object.getTranslation().getY());
     update.setRotation(object.getRotation());
     return update;
+  }
+
+  @Override
+  public SyncDestroy<Transform> makeDestroyMessage(Transform object) {
+    return new TransformSyncDestroy();
   }
 
   @Override

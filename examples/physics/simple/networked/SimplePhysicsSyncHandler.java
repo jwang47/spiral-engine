@@ -30,9 +30,11 @@ public class SimplePhysicsSyncHandler extends PhysicsSyncHandler {
       @Override
       public Entity createEntity(World world) {
         Entity e = world.createEntity();
-        e.addComponent(new Render(new Rectangle(Color.red, 15, 15)));
+        e.addComponent(new Render(new Rectangle(Color.cyan, 25, 25)));
         e.addComponent(new Transform(0, 0, 0));
+        e.addComponent(physics);
         e.refresh();
+        System.out.println("added remote entity");
         return e;
       }
       

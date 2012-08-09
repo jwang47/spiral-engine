@@ -66,7 +66,7 @@ public class PhysicsSystem extends IntervalEntitySystem implements ContactListen
       Physics physics = physicsMapper.get(e);
       
       Vec2 position = physics.getBody().getPosition();
-      transform.getTranslation().set(position.x, position.y).mult(ptm);
+      transform.getTranslation().set(position.x * ptm, position.y * ptm);
     }
   }
   

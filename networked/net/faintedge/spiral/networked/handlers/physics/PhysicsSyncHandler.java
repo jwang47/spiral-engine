@@ -2,6 +2,7 @@ package net.faintedge.spiral.networked.handlers.physics;
 
 import net.faintedge.spiral.networked.SyncHandler;
 import net.faintedge.spiral.networked.msg.SyncCreate;
+import net.faintedge.spiral.networked.msg.SyncDestroy;
 import net.faintedge.spiral.networked.msg.SyncUpdate;
 import net.faintedge.spiral.physics.Physics;
 
@@ -23,10 +24,15 @@ public class PhysicsSyncHandler extends SyncHandler<Physics> {
       update.setX(body.getPosition().x);
       update.setY(body.getPosition().y);
       update.setVx(body.getLinearVelocity().x);
-      update.setVx(body.getLinearVelocity().y);
+      update.setVy(body.getLinearVelocity().y);
       update.setRotation(body.getAngle());
     }
     return update;
+  }
+
+  @Override
+  public SyncDestroy<Physics> makeDestroyMessage(Physics object) {
+    return new PhysicsSyncDestroy();
   }
 
   @Override

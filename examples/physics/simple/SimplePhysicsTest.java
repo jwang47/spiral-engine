@@ -69,7 +69,7 @@ public class SimplePhysicsTest extends BasicGame {
   private Physics generatePhysicsComponent(BodyType bodyType, float width, float height) {
     BodyDef bodyDef = new BodyDef();
     bodyDef.type = bodyType;
-    bodyDef.linearDamping = 1f;
+    bodyDef.linearDamping = 0.9f;
     FixtureDef fixtureDef = new FixtureDef();
     PolygonShape polygon = new PolygonShape();
     polygon.setAsBox(width * 0.5f / PTM, height * 0.5f / PTM);
@@ -84,7 +84,7 @@ public class SimplePhysicsTest extends BasicGame {
     physicsSystem.process();
     physicsControllerSystem.process();
     if (physics == null || physics.getBody() == null) {
-      System.out.println("wtf");
+      System.out.println("wtf1");
     }
   }
 
