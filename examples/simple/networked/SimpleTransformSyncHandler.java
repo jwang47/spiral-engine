@@ -1,6 +1,9 @@
 package simple.networked;
 
-import net.faintedge.spiral.core.CreateEntityCallback;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.faintedge.spiral.core.ProcessCallback;
 import net.faintedge.spiral.core.WorldManager;
 import net.faintedge.spiral.core.component.Render;
 import net.faintedge.spiral.core.component.Transform;
@@ -15,7 +18,8 @@ import com.artemis.World;
 
 public class SimpleTransformSyncHandler extends TransformSyncHandler {
 
-  public WorldManager world;
+  private WorldManager world;
+  private Map<Transform, Entity> transformToEntity = new HashMap<Transform, Entity>();
   
   public SimpleTransformSyncHandler(WorldManager world) {
     this.world = world;
@@ -24,7 +28,7 @@ public class SimpleTransformSyncHandler extends TransformSyncHandler {
   @Override
   public Transform create(SyncCreate<Transform> message) {
     final Transform transform = new Transform(300, 300, 0);
-    world.addCreateCallback(new CreateEntityCallback() {
+    world.addProcessCallback(new ProcessCallback() {
 
       @Override
       public Entity createEntity(World world) {
@@ -32,11 +36,18 @@ public class SimpleTransformSyncHandler extends TransformSyncHandler {
         e.addComponent(new Render(new Rectangle(Color.red, 15, 15)));
         e.addComponent(transform);
         e.refresh();
+        transformToEntity.put(transform, e);
         return e;
       }
       
     });
     return transform;
+  }
+
+  @Override
+  public void destroy(Transform object) {
+    Entity e = transformToEntity.remove(object);
+    world.getWorld().deleteEntity(e);
   }
 
 }

@@ -41,6 +41,11 @@ public class PhysicsSyncHandler extends SyncHandler<Physics> {
   }
 
   @Override
+  public void destroy(Physics object) {
+    
+  }
+
+  @Override
   public void applyUpdate(Physics object, SyncUpdate<Physics> message) {
     PhysicsSyncUpdate update = (PhysicsSyncUpdate) message;
     Body body = object.getBody();

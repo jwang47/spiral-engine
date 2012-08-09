@@ -1,6 +1,9 @@
 package physics.simple.networked;
 
-import net.faintedge.spiral.core.CreateEntityCallback;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.faintedge.spiral.core.ProcessCallback;
 import net.faintedge.spiral.core.WorldManager;
 import net.faintedge.spiral.core.component.Render;
 import net.faintedge.spiral.core.component.Transform;
@@ -16,7 +19,8 @@ import com.artemis.World;
 
 public class SimplePhysicsSyncHandler extends PhysicsSyncHandler {
 
-  public WorldManager world;
+  private WorldManager world;
+  private Map<Physics, Entity> physicsToEntity = new HashMap<Physics, Entity>();
   
   public SimplePhysicsSyncHandler(WorldManager world) {
     this.world = world;
@@ -25,8 +29,7 @@ public class SimplePhysicsSyncHandler extends PhysicsSyncHandler {
   @Override
   public Physics create(SyncCreate<Physics> message) {
     final Physics physics = super.create(message);
-    world.addCreateCallback(new CreateEntityCallback() {
-
+    world.addProcessCallback(new ProcessCallback() {
       @Override
       public Entity createEntity(World world) {
         Entity e = world.createEntity();
@@ -34,12 +37,24 @@ public class SimplePhysicsSyncHandler extends PhysicsSyncHandler {
         e.addComponent(new Transform(0, 0, 0));
         e.addComponent(physics);
         e.refresh();
-        System.out.println("added remote entity");
+        System.out.println("created remote entity");
         return e;
       }
-      
     });
     return physics;
   }
 
+  @Override
+  public void destroy(Physics object) {
+    final Entity e = physicsToEntity.remove(object);
+    world.addProcessCallback(new ProcessCallback() {
+      @Override
+      public Entity createEntity(World world) {
+        world.deleteEntity(e);
+        System.out.println("destroyed entity");
+        return e;
+      }
+    });
+  }
+  
 }

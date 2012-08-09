@@ -52,7 +52,7 @@ public class SimpleNetworkedGame extends BasicGame {
   private WorldManager worldManager;
 
   public SimpleNetworkedGame(Mode mode) {
-    super("simple test");
+    super("simple networked test " + mode);
     this.mode = mode;
   }
 

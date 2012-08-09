@@ -61,7 +61,7 @@ public class SimplePhysicsNetworkedGame extends BasicGame {
   private WorldManager worldManager;
 
   public SimplePhysicsNetworkedGame(Mode mode) {
-    super("simple test");
+    super("simple physics networked test " + mode);
     this.mode = mode;
   }
 

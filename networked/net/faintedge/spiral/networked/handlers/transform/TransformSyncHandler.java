@@ -37,6 +37,11 @@ public class TransformSyncHandler extends SyncHandler<Transform> {
   }
 
   @Override
+  public void destroy(Transform object) {
+    
+  }
+
+  @Override
   public void applyUpdate(Transform object, SyncUpdate<Transform> message) {
     TransformSyncUpdate update = (TransformSyncUpdate) message;
     object.getTranslation().set(update.getX(), update.getY());

@@ -8,7 +8,7 @@ import com.artemis.World;
 
 public class WorldManager {
   
-  private Queue<CreateEntityCallback> createCallbacks = new ConcurrentLinkedQueue<CreateEntityCallback>();
+  private Queue<ProcessCallback> processCallbacks = new ConcurrentLinkedQueue<ProcessCallback>();
   private World world;
 
   public WorldManager(World world) {
@@ -16,13 +16,17 @@ public class WorldManager {
   }
   
   public void process() {
-    while (!createCallbacks.isEmpty()) {
-      createCallbacks.poll().createEntity(world);
+    while (!processCallbacks.isEmpty()) {
+      processCallbacks.poll().createEntity(world);
     }
   }
   
-  public void addCreateCallback(CreateEntityCallback callback) {
-    createCallbacks.add(callback);
+  public void addProcessCallback(ProcessCallback callback) {
+    processCallbacks.add(callback);
+  }
+
+  public World getWorld() {
+    return world;
   }
 
 }

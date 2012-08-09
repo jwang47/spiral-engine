@@ -116,12 +116,13 @@ public class SyncManager<T extends Component> extends Listener {
     
     syncObjectsById.remove(syncObject.getSyncObjectId());
     syncObjectsByOwner.get(syncObject.getOwnerId()).remove(syncObject);
+    handler.destroy(syncObject.getObject());
   }
 
   public void added(T object, SyncObject<T> syncObject) {
     if (server != null) {
       short syncObjectId = nextSyncObjectId++;
-      SyncCreate<T> create = handler.makeCreateMessage(syncObject.getObject());
+      SyncCreate<T> create = handler.makeCreateMessage(object);
       create.setOwnerId(myOwnerId);
       create.setSyncManagerId(syncManagerId);
       create.setSyncObjectId(syncObjectId);
@@ -142,16 +143,16 @@ public class SyncManager<T extends Component> extends Listener {
   }
 
   public void removed(T object, SyncObject<T> syncObject) {
+    // remove locally if it's ours
+    if (syncObject.getOwnerId() == myOwnerId) {
+      removeSyncObject(syncObject);
+    }
+    
     // unregister
     SyncDestroy<T> destroy = handler.makeDestroyMessage(object);
     destroy.setOwnerId(syncObject.getOwnerId());
     destroy.setSyncManagerId(syncManagerId);
     destroy.setSyncObjectId(syncObject.getSyncObjectId());
-
-    // remove locally if it's ours
-    if (destroy.getOwnerId() == myOwnerId) {
-      removeSyncObject(syncObject);
-    }
     
     // notify remote end
     if (server != null) {
@@ -186,16 +187,18 @@ public class SyncManager<T extends Component> extends Listener {
     if (server != null) {
       // send destroy messages for the connection's sync objects
       // also remove the syncObjects bag for that owner
-      Bag<SyncObject<T>> syncObjects = syncObjectsByOwner.remove(connection.getID());
+      Bag<SyncObject<T>> syncObjects = syncObjectsByOwner.get(connection.getID());
       for (int i = 0; i < syncObjects.size(); i++) {
         SyncObject<T> syncObject = syncObjects.get(i);
-        SyncCreate<T> create = handler.makeCreateMessage(syncObject.getObject());
-        Log.info("sending create for obj id " + syncObject.getSyncObjectId());
-        create.setOwnerId(syncObject.getOwnerId());
-        create.setSyncManagerId(syncObject.getSyncManagerId());
-        create.setSyncObjectId(syncObject.getSyncObjectId());
-        connection.sendTCP(create);
+        SyncDestroy<T> destroy = handler.makeDestroyMessage(syncObject.getObject());
+        Log.info("sending destroy for obj id " + syncObject.getSyncObjectId());
+        destroy.setOwnerId(syncObject.getOwnerId());
+        destroy.setSyncManagerId(syncObject.getSyncManagerId());
+        destroy.setSyncObjectId(syncObject.getSyncObjectId());
+        removeSyncObject(syncObject);
+        server.sendToAllExceptTCP(connection.getID(), destroy);
       }
+      syncObjectsByOwner.remove(connection.getID());
     } else if (client != null) {
       // server died?
     }
@@ -215,6 +218,11 @@ public class SyncManager<T extends Component> extends Listener {
       SyncCreate<T> create = (SyncCreate<T>) message;
       Log.info("received sync create for object id " + create.getSyncObjectId());
       addSyncObject(handler.create(create), new SyncObject<T>(), create);
+    } else if (message instanceof SyncDestroy) {
+      SyncDestroy<T> destroy = (SyncDestroy<T>) message;
+      Log.info("received sync destroy for object id " + destroy.getSyncObjectId());
+      SyncObject<T> syncObject = syncObjectsById.get(destroy.getSyncObjectId());
+      removeSyncObject(syncObject);
     } else if (message instanceof SyncObjectIdRequest) {
       SyncObjectIdRequest idRequest = (SyncObjectIdRequest) message;
       if (idRequest.getPhase() == SyncObjectIdRequest.REQUEST) {
