@@ -1,4 +1,4 @@
-package net.faintedge.spiral.networked.msg;
+package net.faintedge.spiral.networked.sync.msg;
 
 public class SyncObjectIdRequest {
 

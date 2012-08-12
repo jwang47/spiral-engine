@@ -1,11 +1,18 @@
-package net.faintedge.spiral.networked;
+package net.faintedge.spiral.networked.sync;
 
-import net.faintedge.spiral.networked.msg.SyncCreate;
-import net.faintedge.spiral.networked.msg.SyncDestroy;
-import net.faintedge.spiral.networked.msg.SyncUpdate;
+import net.faintedge.spiral.networked.sync.msg.SyncCreate;
+import net.faintedge.spiral.networked.sync.msg.SyncDestroy;
+import net.faintedge.spiral.networked.sync.msg.SyncUpdate;
+
+import com.esotericsoftware.kryo.Kryo;
 
 public abstract class SyncHandler<T> {
+  
+  public SyncHandler(Kryo kryo) {
+    this.registerMessages(kryo);
+  }
 
+  public abstract void registerMessages(Kryo kryo);
   public abstract SyncCreate<T> makeCreateMessage(T object);
   public abstract SyncUpdate<T> makeUpdateMessage(T object);
   public abstract SyncDestroy<T> makeDestroyMessage(T object);

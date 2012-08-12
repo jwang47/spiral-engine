@@ -6,15 +6,15 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 
-public class ImageSpatial implements Renderable {
+public class ImageRender implements Renderable {
 
   private Image image;
 
-  public ImageSpatial() {
+  public ImageRender() {
     super();
   }
 
-  public ImageSpatial(Image image) {
+  public ImageRender(Image image) {
     this.image = image;
   }
 

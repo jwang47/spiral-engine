@@ -1,6 +1,6 @@
-package net.faintedge.spiral.networked.handlers.physics;
+package net.faintedge.spiral.networked.sync.handlers.physics;
 
-import net.faintedge.spiral.networked.msg.SyncUpdate;
+import net.faintedge.spiral.networked.sync.msg.SyncUpdate;
 import net.faintedge.spiral.physics.Physics;
 
 

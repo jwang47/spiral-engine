@@ -8,21 +8,23 @@ import net.faintedge.spiral.core.WorldManager;
 import net.faintedge.spiral.core.component.Render;
 import net.faintedge.spiral.core.component.Transform;
 import net.faintedge.spiral.core.component.render.Rectangle;
-import net.faintedge.spiral.networked.handlers.physics.PhysicsSyncHandler;
-import net.faintedge.spiral.networked.msg.SyncCreate;
+import net.faintedge.spiral.networked.sync.handlers.physics.PhysicsSyncHandler;
+import net.faintedge.spiral.networked.sync.msg.SyncCreate;
 import net.faintedge.spiral.physics.Physics;
 
 import org.newdawn.slick.Color;
 
 import com.artemis.Entity;
 import com.artemis.World;
+import com.esotericsoftware.kryo.Kryo;
 
 public class SimplePhysicsSyncHandler extends PhysicsSyncHandler {
 
   private WorldManager world;
   private Map<Physics, Entity> physicsToEntity = new HashMap<Physics, Entity>();
   
-  public SimplePhysicsSyncHandler(WorldManager world) {
+  public SimplePhysicsSyncHandler(Kryo kryo, WorldManager world) {
+    super(kryo);
     this.world = world;
   }
   
@@ -37,7 +39,7 @@ public class SimplePhysicsSyncHandler extends PhysicsSyncHandler {
         e.addComponent(new Transform(0, 0, 0));
         e.addComponent(physics);
         e.refresh();
-        System.out.println("created remote entity");
+        System.out.println("created remote entity123");
         return e;
       }
     });

@@ -1,13 +1,30 @@
-package net.faintedge.spiral.networked.handlers.transform;
+package net.faintedge.spiral.networked.sync.handlers.transform;
+
+import com.esotericsoftware.kryo.Kryo;
 
 import net.faintedge.spiral.core.component.Transform;
-import net.faintedge.spiral.networked.SyncHandler;
-import net.faintedge.spiral.networked.msg.SyncCreate;
-import net.faintedge.spiral.networked.msg.SyncDestroy;
-import net.faintedge.spiral.networked.msg.SyncUpdate;
+import net.faintedge.spiral.networked.sync.SyncHandler;
+import net.faintedge.spiral.networked.sync.handlers.physics.PhysicsSyncCreate;
+import net.faintedge.spiral.networked.sync.handlers.physics.PhysicsSyncDestroy;
+import net.faintedge.spiral.networked.sync.handlers.physics.PhysicsSyncUpdate;
+import net.faintedge.spiral.networked.sync.msg.SyncCreate;
+import net.faintedge.spiral.networked.sync.msg.SyncDestroy;
+import net.faintedge.spiral.networked.sync.msg.SyncUpdate;
 import util.Log;
 
 public class TransformSyncHandler extends SyncHandler<Transform> {
+
+  public TransformSyncHandler(Kryo kryo) {
+    super(kryo);
+    // TODO Auto-generated constructor stub
+  }
+
+  @Override
+  public void registerMessages(Kryo kryo) {
+    kryo.register(TransformSyncCreate.class);
+    kryo.register(TransformSyncUpdate.class);
+    kryo.register(TransformSyncDestroy.class);
+  }
   
   @Override
   public SyncCreate<Transform> makeCreateMessage(Transform object) {
@@ -31,9 +48,7 @@ public class TransformSyncHandler extends SyncHandler<Transform> {
 
   @Override
   public Transform create(SyncCreate<Transform> message) {
-//    TransformSyncCreate create = (TransformSyncCreate) message;
-    Transform transform = new Transform();
-    return transform;
+    return new Transform();
   }
 
   @Override

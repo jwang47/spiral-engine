@@ -1,14 +1,14 @@
-package net.faintedge.spiral.networked;
+package net.faintedge.spiral.networked.sync;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import net.faintedge.spiral.networked.msg.SyncCreate;
-import net.faintedge.spiral.networked.msg.SyncDestroy;
-import net.faintedge.spiral.networked.msg.SyncObjectIdRequest;
-import net.faintedge.spiral.networked.msg.SyncUpdate;
+import net.faintedge.spiral.networked.sync.msg.SyncCreate;
+import net.faintedge.spiral.networked.sync.msg.SyncDestroy;
+import net.faintedge.spiral.networked.sync.msg.SyncObjectIdRequest;
+import net.faintedge.spiral.networked.sync.msg.SyncUpdate;
 import util.Assert;
 import util.Log;
 
@@ -62,26 +62,26 @@ public class SyncManager<T extends Component> extends Listener {
     this.client = client;
     client.addListener(this);
   }
-  
-  private Bag<SyncObject<T>> getMySyncObjects() {
-    return syncObjectsByOwner.get(myOwnerId);
-  }
 
   protected void processEntities(ImmutableBag<Entity> entities, int delta) {
     if (server != null) {
       // send updates for all stuff
       for (SyncObject<T> syncObject : syncObjectsById.values()) {
-        syncObject.update(server, handler, delta);
+        if (syncObject.isReplicated()) {
+          syncObject.update(server, handler, delta);
+        }
       }
     } else if (client != null) {
       // send updates for stuff we're authoritative over
-      Bag<SyncObject<T>> mySyncObjects = getMySyncObjects();
+      Bag<SyncObject<T>> mySyncObjects = getSyncObjectsForId(myOwnerId);
       for (int i = 0, s = mySyncObjects.size(); i < s; i++) {
-        mySyncObjects.get(i).update(client, handler, delta);
+        if (mySyncObjects.get(i).isReplicated()) {
+          mySyncObjects.get(i).update(client, handler, delta);
+        }
       }
     }
     
-    // apply updates for stuff we're not
+    // apply updates we received
     while (!pendingUpdates.isEmpty()) {
       SyncUpdate<T> update = pendingUpdates.poll();
       SyncObject<T> syncObject = syncObjectsById.get(update.getSyncObjectId());
@@ -91,6 +91,13 @@ public class SyncManager<T extends Component> extends Listener {
       }
       syncObject.applyUpdate(handler, update);
     }
+  }
+  
+  private Bag<SyncObject<T>> getSyncObjectsForId(int ownerId) {
+    if (syncObjectsByOwner.get(ownerId) == null) {
+      syncObjectsByOwner.put(ownerId, new Bag<SyncObject<T>>());
+    }
+    return syncObjectsByOwner.get(ownerId);
   }
   
   private void addSyncObject(T object, SyncObject<T> syncObject, SyncCreate<T> create) {
@@ -103,9 +110,10 @@ public class SyncManager<T extends Component> extends Listener {
     syncObject.setOwnerId(create.getOwnerId());
     syncObject.setSyncManagerId(create.getSyncManagerId());
     syncObject.setSyncObjectId(create.getSyncObjectId());
+    syncObject.setReplicated(create.isReplicated());
     
     syncObjectsById.put(create.getSyncObjectId(), syncObject);
-    syncObjectsByOwner.get(create.getOwnerId()).add(syncObject);
+    getSyncObjectsForId(create.getOwnerId()).add(syncObject);
   }
   
   private void removeSyncObject(SyncObject<T> syncObject) {
@@ -115,10 +123,15 @@ public class SyncManager<T extends Component> extends Listener {
     Assert.isTrue(syncObject.getSyncObjectId() != -1);
     
     syncObjectsById.remove(syncObject.getSyncObjectId());
-    syncObjectsByOwner.get(syncObject.getOwnerId()).remove(syncObject);
+    getSyncObjectsForId(syncObject.getOwnerId()).remove(syncObject);
     handler.destroy(syncObject.getObject());
   }
 
+  /**
+   * Called when an entity has been added locally
+   * @param object
+   * @param syncObject
+   */
   public void added(T object, SyncObject<T> syncObject) {
     if (server != null) {
       short syncObjectId = nextSyncObjectId++;
@@ -126,8 +139,11 @@ public class SyncManager<T extends Component> extends Listener {
       create.setOwnerId(myOwnerId);
       create.setSyncManagerId(syncManagerId);
       create.setSyncObjectId(syncObjectId);
+      create.setReplicate(syncObject.isReplicated());
       addSyncObject(object, syncObject, create);
-      server.sendToAllTCP(create);
+      if (syncObject.isReplicated()) {
+        server.sendToAllTCP(create);
+      }
     } else if (client != null) {
       // we're client, so we need to get a sync object id from server
       SyncObjectIdRequest request = new SyncObjectIdRequest();
@@ -142,6 +158,11 @@ public class SyncManager<T extends Component> extends Listener {
     }
   }
 
+  /**
+   * Called when an entity has been removed locally
+   * @param object
+   * @param syncObject
+   */
   public void removed(T object, SyncObject<T> syncObject) {
     // remove locally if it's ours
     if (syncObject.getOwnerId() == myOwnerId) {
@@ -155,7 +176,7 @@ public class SyncManager<T extends Component> extends Listener {
     destroy.setSyncObjectId(syncObject.getSyncObjectId());
     
     // notify remote end
-    if (server != null) {
+    if (server != null && syncObject.isReplicated()) {
       server.sendToAllTCP(destroy);
     } else if (client != null) {
       client.sendTCP(destroy);
@@ -166,19 +187,18 @@ public class SyncManager<T extends Component> extends Listener {
   public void connected(Connection connection) {
     if (server != null) {
       // send new client create messages
-      syncObjectsByOwner.put(connection.getID(), new Bag<SyncObject<T>>());
       for (SyncObject<T> syncObject : syncObjectsById.values()) {
-        SyncCreate<T> create = handler.makeCreateMessage(syncObject.getObject());
-        Log.info("sending create for obj id " + syncObject.getSyncObjectId());
-        create.setOwnerId(syncObject.getOwnerId());
-        create.setSyncManagerId(syncObject.getSyncManagerId());
-        create.setSyncObjectId(syncObject.getSyncObjectId());
-        connection.sendTCP(create);
+        if (syncObject.isReplicated()) {
+          SyncCreate<T> create = handler.makeCreateMessage(syncObject.getObject());
+          Log.info("sending create for obj id " + syncObject.getSyncObjectId());
+          create.setOwnerId(syncObject.getOwnerId());
+          create.setSyncManagerId(syncObject.getSyncManagerId());
+          create.setSyncObjectId(syncObject.getSyncObjectId());
+          connection.sendTCP(create);
+        }
       }
     } else if (client != null) {
       myOwnerId = client.getID();
-      syncObjectsByOwner.put(SERVER_OWNER_ID, new Bag<SyncObject<T>>());
-      syncObjectsByOwner.put(myOwnerId, new Bag<SyncObject<T>>());
     }
   }
 
@@ -187,16 +207,18 @@ public class SyncManager<T extends Component> extends Listener {
     if (server != null) {
       // send destroy messages for the connection's sync objects
       // also remove the syncObjects bag for that owner
-      Bag<SyncObject<T>> syncObjects = syncObjectsByOwner.get(connection.getID());
+      Bag<SyncObject<T>> syncObjects = getSyncObjectsForId(connection.getID());
       for (int i = 0; i < syncObjects.size(); i++) {
         SyncObject<T> syncObject = syncObjects.get(i);
-        SyncDestroy<T> destroy = handler.makeDestroyMessage(syncObject.getObject());
-        Log.info("sending destroy for obj id " + syncObject.getSyncObjectId());
-        destroy.setOwnerId(syncObject.getOwnerId());
-        destroy.setSyncManagerId(syncObject.getSyncManagerId());
-        destroy.setSyncObjectId(syncObject.getSyncObjectId());
-        removeSyncObject(syncObject);
-        server.sendToAllExceptTCP(connection.getID(), destroy);
+        if (syncObject.isReplicated()) {
+          SyncDestroy<T> destroy = handler.makeDestroyMessage(syncObject.getObject());
+          Log.info("sending destroy for obj id " + syncObject.getSyncObjectId());
+          destroy.setOwnerId(syncObject.getOwnerId());
+          destroy.setSyncManagerId(syncObject.getSyncManagerId());
+          destroy.setSyncObjectId(syncObject.getSyncObjectId());
+          removeSyncObject(syncObject);
+          server.sendToAllExceptTCP(connection.getID(), destroy);
+        }
       }
       syncObjectsByOwner.remove(connection.getID());
     } else if (client != null) {
@@ -246,6 +268,7 @@ public class SyncManager<T extends Component> extends Listener {
         create.setOwnerId(myOwnerId);
         create.setSyncManagerId(syncManagerId);
         create.setSyncObjectId(syncObjectId);
+        create.setReplicate(syncObject.isReplicated());
         addSyncObject(object, syncObject, create);
         connection.sendTCP(create);
       }

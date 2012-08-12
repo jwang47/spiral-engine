@@ -1,15 +1,35 @@
-package net.faintedge.spiral.networked.handlers.physics;
+package net.faintedge.spiral.networked.sync.handlers.physics;
 
-import net.faintedge.spiral.networked.SyncHandler;
-import net.faintedge.spiral.networked.msg.SyncCreate;
-import net.faintedge.spiral.networked.msg.SyncDestroy;
-import net.faintedge.spiral.networked.msg.SyncUpdate;
+import net.faintedge.spiral.networked.sync.SyncHandler;
+import net.faintedge.spiral.networked.sync.msg.SyncCreate;
+import net.faintedge.spiral.networked.sync.msg.SyncDestroy;
+import net.faintedge.spiral.networked.sync.msg.SyncUpdate;
 import net.faintedge.spiral.physics.Physics;
 
+import org.jbox2d.collision.shapes.ShapeType;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
+import org.jbox2d.dynamics.BodyType;
+
+import com.esotericsoftware.kryo.Kryo;
 
 public class PhysicsSyncHandler extends SyncHandler<Physics> {
+
+  public PhysicsSyncHandler(Kryo kryo) {
+    super(kryo);
+    // TODO Auto-generated constructor stub
+  }
+
+  @Override
+  public void registerMessages(Kryo kryo) {
+    kryo.register(PhysicsSyncCreate.class);
+    kryo.register(PhysicsSyncUpdate.class);
+    kryo.register(PhysicsSyncDestroy.class);
+    kryo.register(BodyType.class);
+    kryo.register(ShapeType.class);
+    kryo.register(float[].class);
+    kryo.register(float[][].class);
+  }
   
   @Override
   public SyncCreate<Physics> makeCreateMessage(Physics object) {

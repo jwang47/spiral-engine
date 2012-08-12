@@ -10,15 +10,16 @@ import net.faintedge.spiral.core.component.Transform;
 import net.faintedge.spiral.core.component.render.Rectangle;
 import net.faintedge.spiral.core.system.ControllerSystem;
 import net.faintedge.spiral.core.system.RenderSystem;
-import net.faintedge.spiral.networked.SyncManager;
-import net.faintedge.spiral.networked.SyncObject;
-import net.faintedge.spiral.networked.SyncSystem;
-import net.faintedge.spiral.networked.handlers.transform.TransformSyncCreate;
-import net.faintedge.spiral.networked.handlers.transform.TransformSyncUpdate;
-import net.faintedge.spiral.networked.msg.SyncCreate;
-import net.faintedge.spiral.networked.msg.SyncDestroy;
-import net.faintedge.spiral.networked.msg.SyncObjectIdRequest;
-import net.faintedge.spiral.networked.msg.SyncUpdate;
+import net.faintedge.spiral.networked.sync.SyncManager;
+import net.faintedge.spiral.networked.sync.SyncObject;
+import net.faintedge.spiral.networked.sync.SyncObjectDebugRender;
+import net.faintedge.spiral.networked.sync.SyncSystem;
+import net.faintedge.spiral.networked.sync.handlers.transform.TransformSyncCreate;
+import net.faintedge.spiral.networked.sync.handlers.transform.TransformSyncUpdate;
+import net.faintedge.spiral.networked.sync.msg.SyncCreate;
+import net.faintedge.spiral.networked.sync.msg.SyncDestroy;
+import net.faintedge.spiral.networked.sync.msg.SyncObjectIdRequest;
+import net.faintedge.spiral.networked.sync.msg.SyncUpdate;
 
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
@@ -65,27 +66,32 @@ public class SimpleNetworkedGame extends BasicGame {
   public void init(GameContainer container) throws SlickException {
     world = new World();
     worldManager = new WorldManager(world);
+    
+    Kryo kryo = null;
+    if (mode == Mode.CLIENT) {
+      client = new Client();
+      kryo = client.getKryo();
+    } else if (mode == Mode.SERVER) {
+      server = new Server();
+      kryo = server.getKryo();
+    }
 
     SystemManager systemManager = world.getSystemManager();
     renderSystem = systemManager.setSystem(new RenderSystem(container.getGraphics()));
     transformMutatorSystem = systemManager.setSystem(new ControllerSystem<Transform>(Transform.class,
         (Class<ControllerContainer<Transform>>) (new ControllerContainer<Transform>(null)).getClass()));
-    transformSyncManager = new SyncManager<Transform>(new SimpleTransformSyncHandler(worldManager), (short) 1);
+    transformSyncManager = new SyncManager<Transform>(new SimpleTransformSyncHandler(kryo, worldManager), (short) 1);
     transformSyncSystem = systemManager.setSystem(new SyncSystem<Transform, SyncObject<Transform>>(Transform.class,
-        (Class<SyncObject<Transform>>) (new SyncObject()).getClass(), transformSyncManager));
+        (Class<SyncObject<Transform>>) (new SyncObject()).getClass(), transformSyncManager, kryo));
     systemManager.initializeAll();
 
     // start server or connect client
     try {
       if (mode == Mode.CLIENT) {
-        client = new Client();
-        registerMessages(client.getKryo());
         client.start();
         client.connect(5000, InetAddress.getLocalHost(), 54555, 54777);
         transformSyncManager.setClient(client);
       } else if (mode == Mode.SERVER) {
-        server = new Server();
-        registerMessages(server.getKryo());
         server.start();
         server.bind(54555, 54777);
         transformSyncManager.setServer(server);
@@ -101,16 +107,7 @@ public class SimpleNetworkedGame extends BasicGame {
     e.addComponent(new ControllerContainer<Transform>(new DebugTransformMover()));
     e.refresh();
   }
-
-  private void registerMessages(Kryo kryo) {
-    kryo.register(SyncCreate.class);
-    kryo.register(SyncUpdate.class);
-    kryo.register(SyncDestroy.class);
-    kryo.register(SyncObjectIdRequest.class);
-    kryo.register(TransformSyncCreate.class);
-    kryo.register(TransformSyncUpdate.class);
-  }
-
+  
   @Override
   public void update(GameContainer container, int delta) throws SlickException {
     worldManager.process();

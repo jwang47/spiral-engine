@@ -1,4 +1,4 @@
-package simple.networked;
+package simple.networked.nonreplicated;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,12 +17,12 @@ import com.artemis.Entity;
 import com.artemis.World;
 import com.esotericsoftware.kryo.Kryo;
 
-public class SimpleTransformSyncHandler extends TransformSyncHandler {
+public class SimpleTransformNonreplicatedSyncHandler extends TransformSyncHandler {
 
   private WorldManager world;
   private Map<Transform, Entity> transformToEntity = new HashMap<Transform, Entity>();
   
-  public SimpleTransformSyncHandler(Kryo kryo, WorldManager world) {
+  public SimpleTransformNonreplicatedSyncHandler(Kryo kryo, WorldManager world) {
     super(kryo);
     this.world = world;
   }

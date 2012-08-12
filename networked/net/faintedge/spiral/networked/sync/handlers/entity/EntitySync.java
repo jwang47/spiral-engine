@@ -1,4 +1,4 @@
-package net.faintedge.spiral.networked.handlers.entity;
+package net.faintedge.spiral.networked.sync.handlers.entity;
 
 import com.artemis.Component;
 

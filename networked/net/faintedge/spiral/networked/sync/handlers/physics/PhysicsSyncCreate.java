@@ -1,8 +1,8 @@
-package net.faintedge.spiral.networked.handlers.physics;
+package net.faintedge.spiral.networked.sync.handlers.physics;
 
 
 import net.faintedge.spiral.core.Vector2;
-import net.faintedge.spiral.networked.msg.SyncCreate;
+import net.faintedge.spiral.networked.sync.msg.SyncCreate;
 import net.faintedge.spiral.physics.Physics;
 import net.faintedge.spiral.physics.system.PhysicsSystem;
 

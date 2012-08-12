@@ -1,10 +1,13 @@
-package net.faintedge.spiral.networked;
+package net.faintedge.spiral.networked.sync;
+
+import net.faintedge.spiral.networked.sync.msg.SyncObjectIdRequest;
 
 import com.artemis.Component;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.EntitySystem;
 import com.artemis.utils.ImmutableBag;
+import com.esotericsoftware.kryo.Kryo;
 
 public class SyncSystem<T extends Component, H extends SyncObject<T>> extends EntitySystem {
 
@@ -15,11 +18,12 @@ public class SyncSystem<T extends Component, H extends SyncObject<T>> extends En
   private Class<T> type;
   private Class<H> type2;
 
-  public SyncSystem(Class<T> type, Class<H> type2, SyncManager<T> manager) {
+  public SyncSystem(Class<T> type, Class<H> type2, SyncManager<T> manager, Kryo kryo) {
     super(type, type2);
     this.type = type;
     this.type2 = type2;
     this.manager = manager;
+    kryo.register(SyncObjectIdRequest.class);
   }
 
   @Override
