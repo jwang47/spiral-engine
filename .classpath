@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="examples"/>
-	<classpathentry excluding="src/" kind="src" path="core"/>
-	<classpathentry excluding="src/" kind="src" path="physics"/>
+	<classpathentry excluding="game/" kind="src" path="core"/>
+	<classpathentry excluding="game/" kind="src" path="physics"/>
 	<classpathentry kind="src" path="networked"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/lwjgl-2.8.4.jar"/>
@@ -11,6 +11,6 @@
 	<classpathentry kind="lib" path="lib/slf4j-nop-1.6.6.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.6.jar"/>
 	<classpathentry kind="lib" path="lib/kryonet-debug-2.18-all.jar" sourcepath="lib/kryonet-2.18-src.zip"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jiahuawang7-artemis-framework"/>
+	<classpathentry kind="lib" path="lib/artemis.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

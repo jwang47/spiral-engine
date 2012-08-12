@@ -1,6 +1,7 @@
 package simple;
 
 import net.faintedge.spiral.core.component.ControllerContainer;
+import net.faintedge.spiral.core.component.DebugTransformMover;
 import net.faintedge.spiral.core.component.Render;
 import net.faintedge.spiral.core.component.Transform;
 import net.faintedge.spiral.core.component.render.Rectangle;
@@ -20,7 +21,6 @@ import com.artemis.Entity;
 import com.artemis.EntitySystem;
 import com.artemis.SystemManager;
 import com.artemis.World;
-import common.DebugTransformMover;
 
 public class SimpleTest extends BasicGame {
 
@@ -28,11 +28,6 @@ public class SimpleTest extends BasicGame {
 
   private EntitySystem renderSystem;
   private EntitySystem transformMutatorSystem;
-  
-  // debug
-  private Graph graph = new Graph(500, 500);
-
-  private EntitySystem cloneSystem;
 
   public SimpleTest() {
     super("simple test");
@@ -48,17 +43,15 @@ public class SimpleTest extends BasicGame {
     world = new World();
 
     SystemManager systemManager = world.getSystemManager();
-    renderSystem = systemManager.setSystem(new RenderSystem(container.getGraphics()));
+    renderSystem = systemManager.setSystem(new RenderSystem(container));
     transformMutatorSystem = systemManager.setSystem(new ControllerSystem<Transform>(Transform.class,
         (Class<ControllerContainer<Transform>>) (new ControllerContainer<Transform>(null)).getClass()));
-    cloneSystem = systemManager.setSystem(new CloneSystem());
     systemManager.initializeAll();
 
     Entity e = world.createEntity();
     e.addComponent(new Transform(300, 300, 0));
     e.addComponent(new Render(new Rectangle(Color.red, 15, 15)));
     e.addComponent(new ControllerContainer<Transform>(new DebugTransformMover()));
-    e.addComponent(new CloneMe());
     e.refresh();
   }
 
@@ -67,19 +60,6 @@ public class SimpleTest extends BasicGame {
     world.loopStart();
     world.setDelta(delta);
     transformMutatorSystem.process();
-    cloneSystem.process();
-  }
-  
-
-  @Override
-  public void keyPressed(int key, char c) {
-    if (key == Input.KEY_R) {
-      Entity e = world.createEntity();
-      e.addComponent(new Transform(300, 300, 0));
-      e.addComponent(new Render(new Rectangle(Color.red, 15, 15)));
-      e.addComponent(new ControllerContainer<Transform>(new DebugTransformMover()));
-      e.refresh();
-    }
   }
 
   public static void main(String[] args) {

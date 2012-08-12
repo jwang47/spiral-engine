@@ -4,6 +4,4 @@ import com.artemis.Component;
 
 public class Move extends Component {
 
-  
-  
 }

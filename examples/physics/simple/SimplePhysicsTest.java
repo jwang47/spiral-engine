@@ -51,7 +51,7 @@ public class SimplePhysicsTest extends BasicGame {
     world = new World();
 
     SystemManager systemManager = world.getSystemManager();
-    renderSystem = systemManager.setSystem(new RenderSystem(container.getGraphics()));
+    renderSystem = systemManager.setSystem(new RenderSystem(container));
     physicsSystem = systemManager.setSystem(new PhysicsSystem(new Vec2(0, 0), PTM));
     physicsControllerSystem = systemManager.setSystem(new ControllerSystem<Physics>(Physics.class,
         (Class<ControllerContainer<Physics>>) (new ControllerContainer<Physics>(null)).getClass()));

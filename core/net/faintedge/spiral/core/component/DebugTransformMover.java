@@ -1,7 +1,5 @@
-package common;
+package net.faintedge.spiral.core.component;
 
-import net.faintedge.spiral.core.component.Controller;
-import net.faintedge.spiral.core.component.Transform;
 
 import org.lwjgl.input.Keyboard;
 import org.newdawn.slick.Input;

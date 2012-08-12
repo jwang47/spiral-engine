@@ -5,6 +5,7 @@ import java.net.InetAddress;
 
 import net.faintedge.spiral.core.WorldManager;
 import net.faintedge.spiral.core.component.ControllerContainer;
+import net.faintedge.spiral.core.component.DebugTransformMover;
 import net.faintedge.spiral.core.component.Render;
 import net.faintedge.spiral.core.component.Transform;
 import net.faintedge.spiral.core.component.render.Rectangle;
@@ -34,7 +35,6 @@ import com.artemis.World;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Server;
-import common.DebugTransformMover;
 import common.Mode;
 
 public class SimpleNetworkedNonreplicatedGame extends BasicGame {
@@ -77,7 +77,7 @@ public class SimpleNetworkedNonreplicatedGame extends BasicGame {
     }
 
     SystemManager systemManager = world.getSystemManager();
-    renderSystem = systemManager.setSystem(new RenderSystem(container.getGraphics()));
+    renderSystem = systemManager.setSystem(new RenderSystem(container));
     transformMutatorSystem = systemManager.setSystem(new ControllerSystem<Transform>(Transform.class,
         (Class<ControllerContainer<Transform>>) (new ControllerContainer<Transform>(null)).getClass()));
     transformSyncManager = new SyncManager<Transform>(new SimpleTransformNonreplicatedSyncHandler(kryo, worldManager), (short) 1);
@@ -97,7 +97,7 @@ public class SimpleNetworkedNonreplicatedGame extends BasicGame {
         transformSyncManager.setServer(server);
       }
     } catch (IOException e) {
-
+      e.printStackTrace();
     }
 
     Entity e = world.createEntity();
