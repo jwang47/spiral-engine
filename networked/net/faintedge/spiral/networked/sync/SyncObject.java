@@ -23,6 +23,14 @@ public class SyncObject<T> extends Component {
   // options
   private boolean replicate = true;
 
+  public SyncObject() {
+    
+  }
+  
+  public SyncObject(boolean replicate) {
+    this.replicate = replicate;
+  }
+  
   public void update(Server server, SyncHandler<T> handler, int delta) {
     timeSinceLastUpdate += delta;
     if (timeSinceLastUpdate > updateDelay) {

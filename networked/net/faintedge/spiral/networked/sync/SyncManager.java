@@ -75,9 +75,7 @@ public class SyncManager<T extends Component> extends Listener {
       // send updates for stuff we're authoritative over
       Bag<SyncObject<T>> mySyncObjects = getSyncObjectsForId(myOwnerId);
       for (int i = 0, s = mySyncObjects.size(); i < s; i++) {
-        if (mySyncObjects.get(i).isReplicated()) {
-          mySyncObjects.get(i).update(client, handler, delta);
-        }
+        mySyncObjects.get(i).update(client, handler, delta);
       }
     }
     

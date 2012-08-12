@@ -1,5 +1,6 @@
 package net.faintedge.spiral.core.system;
 
+import net.faintedge.spiral.core.Renderable;
 import net.faintedge.spiral.core.Vector2;
 import net.faintedge.spiral.core.component.Render;
 import net.faintedge.spiral.core.component.Transform;
@@ -45,14 +46,16 @@ public class RenderSystem extends EntitySystem {
         }
         
         Assert.isTrue(render != null);
-        Assert.isTrue(render.getRenderable() != null);
+        Assert.isTrue(render.getRenderables() != null);
         
         Vector2 translation = transform.getTranslation();
         float rotation = transform.getRotation();
 
         graphics.rotate(translation.getX(), translation.getY(), rotation);
         graphics.translate(translation.getX(), translation.getY());
-        render.getRenderable().render(graphics);
+        for (Renderable renderable : render.getRenderables()) {
+          renderable.render(graphics);
+        }
         graphics.translate(-translation.getX(), -translation.getY());
         graphics.rotate(translation.getX(), translation.getY(), -rotation);
       }

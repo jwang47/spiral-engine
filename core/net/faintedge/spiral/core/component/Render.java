@@ -7,14 +7,14 @@ import com.artemis.Component;
 
 public class Render extends Component {
   
-  private Renderable renderable;
+  private Renderable[] renderables;
   
-  public Render(Renderable renderable) {
-    this.renderable = renderable;
+  public Render(Renderable...renderables) {
+    this.renderables = renderables;
   }
 
-  public Renderable getRenderable() {
-    return renderable;
+  public Renderable[] getRenderables() {
+    return renderables;
   }
 
 }

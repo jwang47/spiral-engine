@@ -102,11 +102,9 @@ public class SimpleNetworkedNonreplicatedGame extends BasicGame {
 
     Entity e = world.createEntity();
     e.addComponent(new Transform(300, 300, 0));
-    e.addComponent(new Render(new Rectangle(Color.red, 15, 15)));
-    SyncObject<Transform> sot = new SyncObject<Transform>();
-    sot.setReplicated(false);
+    SyncObject<Transform> sot = new SyncObject<Transform>(false);
     e.addComponent(sot);
-    e.addComponent(new Render(new SyncObjectDebugRender<Transform>(sot)));
+    e.addComponent(new Render(new SyncObjectDebugRender<Transform>(sot), new Rectangle(Color.red, 15, 15)));
     e.addComponent(new ControllerContainer<Transform>(new DebugTransformMover()));
     e.refresh();
   }
