@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jbox2d.collision.Manifold;
+import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.FixtureDef;
@@ -24,6 +25,7 @@ public class Physics extends Component {
   // various options
   private BodyDef bodyDef;
   private FixtureDef fixtureDef;
+  private Vec2 center = new Vec2(0, 0);
   private boolean applyRotation;
   private float maxSpeed = Float.MAX_VALUE;
   
@@ -78,5 +80,9 @@ public class Physics extends Component {
 
   public float getPtm() {
     return ptm;
+  }
+
+  public Vec2 getCenter() {
+    return center;
   }
 }

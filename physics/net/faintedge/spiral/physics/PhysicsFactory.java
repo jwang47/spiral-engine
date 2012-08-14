@@ -8,34 +8,29 @@ import org.jbox2d.dynamics.FixtureDef;
 
 public class PhysicsFactory {
 
-  public static Physics createPhysicsCircle(float radius, float ptm) {
-    return createPhysicsCircle(radius, ptm, false);
-  }
-  public static Physics createPhysicsCircle(float radius, float ptm, boolean debug) {
+  public static Physics createPhysicsCircle(BodyType type, float radius, float ptm) {
     BodyDef bodyDef = new BodyDef();
-    bodyDef.type = BodyType.DYNAMIC;
+    bodyDef.type = type;
     
     CircleShape circle = new CircleShape();
     circle.m_radius = radius / ptm;
     
     FixtureDef fixtureDef = new FixtureDef();
+    fixtureDef.density = 1.0f;
     fixtureDef.shape = circle;
     
     return new Physics(bodyDef, fixtureDef, ptm);
   }
-
-  public static Physics createPhysicsRectangle(float width, float height, float ptm) {
-    return createPhysicsRectangle(width, height, ptm, false);
-  }
   
-  public static Physics createPhysicsRectangle(float width, float height, float ptm, boolean debug) {
+  public static Physics createPhysicsRectangle(BodyType type, float width, float height, float ptm) {
     BodyDef bodyDef = new BodyDef();
-    bodyDef.type = BodyType.DYNAMIC;
+    bodyDef.type = type;
     
     PolygonShape box = new PolygonShape();
     box.setAsBox(width * 0.5f / ptm, height * 0.5f/ptm);
     
     FixtureDef fixtureDef = new FixtureDef();
+    fixtureDef.density = 1.0f;
     fixtureDef.shape = box;
 
     return new Physics(bodyDef, fixtureDef, ptm);

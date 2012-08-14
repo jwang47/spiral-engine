@@ -6,6 +6,7 @@ import net.faintedge.spiral.core.Vector2;
 import net.faintedge.spiral.core.component.Render;
 import net.faintedge.spiral.core.component.Transform;
 
+import org.lwjgl.input.Mouse;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 
@@ -48,9 +49,10 @@ public class RenderSystem extends EntitySystem {
     float scale = camera.getScale();
     Vector2 position = camera.getPosition();
     
-    float offsetX = container.getWidth() - position.getX();
-    float offsetY = container.getHeight() - position.getY();
-    
+    float offsetX = container.getWidth()/(2 * scale) - position.getX();
+    float offsetY = container.getHeight()/(2 * scale) - position.getY();
+
+    graphics.scale(scale, scale);
     graphics.translate(offsetX, offsetY);
     for (int i = 0, s = entities.size(); s > i; i++) {
       Entity e = entities.get(i);
@@ -77,6 +79,7 @@ public class RenderSystem extends EntitySystem {
       graphics.rotate(translation.getX(), translation.getY(), -rotation);
     }
     graphics.translate(-offsetX, -offsetY);
+    graphics.scale(1/scale, 1/scale);
   }
 
   @Override
@@ -94,6 +97,14 @@ public class RenderSystem extends EntitySystem {
 
   public Camera getCamera() {
     return camera;
+  }
+
+  public float getWorldMouseX() {
+    return camera.getPosition().getX() + Mouse.getX() - container.getWidth()/2;
+  }
+
+  public float getWorldMouseY() {
+    return camera.getPosition().getY() - Mouse.getY() + container.getHeight()/2;
   }
 
 }

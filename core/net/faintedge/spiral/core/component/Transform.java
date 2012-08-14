@@ -23,6 +23,9 @@ public class Transform extends Component {
     return translation;
   }
 
+  /**
+   * @return rotation in degrees
+   */
   public float getRotation() {
     return rotation;
   }

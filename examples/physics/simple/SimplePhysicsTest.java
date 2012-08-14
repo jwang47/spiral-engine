@@ -3,17 +3,16 @@ package physics.simple;
 import net.faintedge.spiral.core.component.ControllerContainer;
 import net.faintedge.spiral.core.component.Render;
 import net.faintedge.spiral.core.component.Transform;
+import net.faintedge.spiral.core.component.render.Oval;
 import net.faintedge.spiral.core.component.render.Rectangle;
 import net.faintedge.spiral.core.system.ControllerSystem;
 import net.faintedge.spiral.core.system.RenderSystem;
 import net.faintedge.spiral.physics.Physics;
+import net.faintedge.spiral.physics.PhysicsFactory;
 import net.faintedge.spiral.physics.system.PhysicsSystem;
 
-import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
-import org.jbox2d.dynamics.FixtureDef;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
@@ -58,23 +57,44 @@ public class SimplePhysicsTest extends BasicGame {
     systemManager.initializeAll();
 
     Entity e = world.createEntity();
-    e.addComponent(new Transform(300, 300, 0));
-    e.addComponent(new Render(new Rectangle(Color.red, 15, 15)));
-    physics = generatePhysicsComponent(BodyType.DYNAMIC, 15, 15);
+    e.addComponent(new Transform(0, 0, 0));
+    e.addComponent(new Render(new Oval(Color.red, 16, 16)));
+    Physics physics = PhysicsFactory.createPhysicsCircle(BodyType.DYNAMIC, 8, PTM);
+    physics.getBodyDef().fixedRotation = true;
     e.addComponent(physics);
     e.addComponent(new ControllerContainer<Physics>(new DebugPhysicsMover()));
     e.refresh();
-  }
 
-  private Physics generatePhysicsComponent(BodyType bodyType, float width, float height) {
-    BodyDef bodyDef = new BodyDef();
-    bodyDef.type = bodyType;
-    bodyDef.linearDamping = 0.9f;
-    FixtureDef fixtureDef = new FixtureDef();
-    PolygonShape polygon = new PolygonShape();
-    polygon.setAsBox(width * 0.5f / PTM, height * 0.5f / PTM);
-    fixtureDef.shape = polygon;
-    return new Physics(bodyDef, fixtureDef, PTM);
+    e = world.createEntity();
+    e.addComponent(new Transform(0, 0, 0));
+    e.addComponent(new Render(new Rectangle(Color.blue, 15, 150)));
+    e.addComponent(PhysicsFactory.createPhysicsRectangle(BodyType.DYNAMIC, 15, 150, PTM));
+    e.refresh();
+    
+    e = world.createEntity();
+    e.addComponent(new Transform(0, 0, 0));
+    e.addComponent(new Render(new Rectangle(Color.blue, 15, 150)));
+    e.addComponent(PhysicsFactory.createPhysicsRectangle(BodyType.DYNAMIC, 15, 150, PTM));
+    e.refresh();
+    
+    e = world.createEntity();
+    e.addComponent(new Transform(0, 0, 0));
+    e.addComponent(new Render(new Rectangle(Color.blue, 15, 150)));
+    e.addComponent(PhysicsFactory.createPhysicsRectangle(BodyType.DYNAMIC, 15, 150, PTM));
+    e.refresh();
+
+    spawnWall(-400, 0, 15, 600);
+    spawnWall(400, 0, 15, 600);
+    spawnWall(0, -300, 800, 15);
+    spawnWall(0, 300, 800, 15);
+  }
+  
+  private void spawnWall(float x, float y, float width, float height) {
+    Entity e = world.createEntity();
+    e.addComponent(new Transform(x, y, 0));
+    e.addComponent(new Render(new Rectangle(Color.red, width, height)));
+    e.addComponent(PhysicsFactory.createPhysicsRectangle(BodyType.STATIC, width, height, PTM));
+    e.refresh();
   }
 
   @Override
@@ -83,9 +103,6 @@ public class SimplePhysicsTest extends BasicGame {
     world.setDelta(delta);
     physicsSystem.process();
     physicsControllerSystem.process();
-    if (physics == null || physics.getBody() == null) {
-      System.out.println("wtf1");
-    }
   }
 
   public static void main(String[] args) {

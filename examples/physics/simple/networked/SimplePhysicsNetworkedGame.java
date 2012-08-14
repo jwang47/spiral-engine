@@ -112,7 +112,7 @@ public class SimplePhysicsNetworkedGame extends BasicGame {
     Entity e = world.createEntity();
     e.addComponent(new Transform(300, 300, 0));
     e.addComponent(new Render(new Rectangle(Color.red, 25, 25)));
-    Physics physics = PhysicsFactory.createPhysicsRectangle(25, 25, PTM);
+    Physics physics = PhysicsFactory.createPhysicsRectangle(BodyType.DYNAMIC, 25, 25, PTM);
     physics.getBodyDef().linearDamping = 1.0f;
     e.addComponent(physics);
     e.addComponent(new SyncObject<Physics>());

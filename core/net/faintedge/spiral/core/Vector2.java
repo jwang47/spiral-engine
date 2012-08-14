@@ -53,7 +53,7 @@ public class Vector2 {
     return this;
   }
   
-  public Vector2 sub(int x, int y) {
+  public Vector2 sub(float x, float y) {
     this.x -= x;
     this.y -= y;
     return this;
@@ -115,14 +115,39 @@ public class Vector2 {
     return (float) Math.sqrt((x * x) + (y * y));
   }
   
+  /**
+   * @param angle in radians
+   * @param multiplier
+   * @return
+   */
   public Vector2 addFromAngle(float angle, float multiplier) {
     this.x += multiplier * Math.cos(angle);
     this.y += multiplier * Math.sin(angle);
     return this;
   }
+  
+  /**
+   * @param angle in radians
+   * @return
+   */
+  public Vector2 fromAngle(float angle) {
+    this.x = (float) Math.cos(angle);
+    this.y = (float) Math.sin(angle);
+    return this;
+  }
+  
+  public Vector2 fromDegrees(float angle) {
+    this.x = (float) Math.cos(angle * Math.PI / 180);
+    this.y = (float) Math.sin(angle * Math.PI / 180);
+    return this;
+  }
 
   public float toAngle() {
     return (float) Math.atan2(y, x);
+  }
+
+  public float toDegrees() {
+    return (float) (Math.atan2(y, x) * 180 / Math.PI);
   }
 
   public boolean is(float x, float y) {
